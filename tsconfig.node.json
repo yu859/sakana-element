@@ -1,0 +1,11 @@
+//配置tsconfig.node.json文件，用于编译nodejs项目，为了支持ES6模块，需要配置module为ESNext，moduleResolution为Bundler，types为node。
+{
+  "extends": "@tsconfig/node18/tsconfig.json",
+  "include": ["packages/**/**.config.ts"],
+  "compilerOptions": {
+    "composite": true,
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "types": ["node"]
+  }
+}
