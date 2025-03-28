@@ -1,7 +1,7 @@
 <script setup lang="ts"></script>
 
 <template>
-  <er-button>hello</er-button>
+  <er-button type="primary" size="small">test</er-button>
 </template>
 
 <style scoped>

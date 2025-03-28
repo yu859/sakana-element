@@ -7,7 +7,7 @@
     "dev": "pnpm --filter @sakana-element/play dev",
     "docs:dev": "pnpm --filter @sakana-element/docs dev",
     "docs:build": "pnpm --filter @sakana-element/docs build",
-    "test": "echo 'todo'"
+    "test": "pnpm --filter @sakana-element/components test"
   },
   "keywords": [],
   "author": "",
