@@ -15,6 +15,18 @@ export interface ButtonProps {
   circle?: boolean;
   plain?: boolean;
   round?: boolean;
+  loadingIcon?: string;
+  autofocus?: boolean;
+  useThrottle?: boolean;
+  throttleDuration?: number;
+}
+
+export interface ButtonEmits {
+  (e: 'click', val: MouseEvent): void;
+}
+
+export interface ButtonInstance {
+  ref: Ref<HTMLButtonElement | void>;
 }
 
 export interface ButtonGroupProps {
@@ -27,12 +39,4 @@ export interface ButtonGroupContext {
   size?: ButtonSize;
   type?: ButtonType;
   disabled?: boolean;
-}
-
-export interface ButtonEmits {
-  (e: 'click', val: MouseEvent): void;
-}
-
-export interface ButtonInstance {
-  ref: Ref<HTMLButtonElement | void>;
 }
