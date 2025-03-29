@@ -1,6 +1,6 @@
-/* .er-button-group {
+.er-button-group {
   --er-button-group-border-color: var(--er-border-color-lighter);
-} */
+}
 .er-button {
   --er-button-font-weight: var(--er-font-weight-primary);
   --er-button-border-color: var(--er-border-color);
