@@ -60,9 +60,9 @@ export default defineConfig({
           if (id.includes('/packages/utils')) {
             return 'utils';
           }
-          for (const item of getDirectoriesSync('../components/')) {
-            if (id.includes(`/packages/components/${item}`)) {
-              return item;
+          for (const dirName of getDirectoriesSync('../components/')) {
+            if (id.includes(`/packages/components/${dirName}`)) {
+              return dirName;
             }
           }
         },
