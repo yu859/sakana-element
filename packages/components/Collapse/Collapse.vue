@@ -1,10 +1,13 @@
 <script setup lang="ts">
 import type { CollapseProps, CollapseEmits, CollapseItemName } from './types';
-import { provide, ref, watch } from 'vue';
+import { provide, ref, watch, watchEffect } from 'vue';
+import { debugWarn } from '@sakana-element/utils';
 import { COLLAPSE_CTX_KEY } from './constants';
 
+const COMP_NAME = 'ErCollapse' as const;
+
 defineOptions({
-  name: 'ErCollapse',
+  name: COMP_NAME,
 });
 const props = defineProps<CollapseProps>();
 const emits = defineEmits<CollapseEmits>();
@@ -38,8 +41,15 @@ function updateActiveNames(newNames: CollapseItemName[]) {
   emits('change', newNames);
 }
 
+watchEffect(() => {
+  if (props.accordion && activeNames.value.length > 1) {
+    debugWarn(COMP_NAME, 'accordion mode should only have one active item');
+  }
+});
+
 watch(
-  () => props.modelValue,
+  //外来的要用函数包，自家的直接用就行
+  () => props.modelValue, //监听modelValue的变化，这么写是监听响应式数据的变化
   (newNames) => updateActiveNames(newNames)
 );
 

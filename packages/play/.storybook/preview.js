@@ -1,4 +1,4 @@
-import 'sakana-element/dist/index.css';
+import 'sakana-element/dist/theme/index.css';
 
 /** @type { import('@storybook/vue3').Preview } */
 const preview = {

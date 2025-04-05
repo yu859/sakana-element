@@ -1,26 +1,26 @@
-import type { Meta, StoryObj } from '@storybook/vue3'
-import { ErCollapse, ErCollapseItem } from 'sakana-element'
+import type { Meta, StoryObj } from '@storybook/vue3';
+import { ErCollapse, ErCollapseItem } from 'sakana-element';
+import 'sakana-element/dist/theme/Collapse.css';
 
-
-type Story = StoryObj<typeof ErCollapse>
+type Story = StoryObj<typeof ErCollapse>;
 
 const meta: Meta<typeof ErCollapse> = {
   title: 'Example/Collapse',
   component: ErCollapse,
   subcomponents: { ErCollapseItem },
-  tags: ['autodocs']
-}
+  tags: ['autodocs'],
+};
 
 export const Default: Story = {
   render: (args) => ({
     components: {
       ErCollapse,
-      ErCollapseItem
+      ErCollapseItem,
     },
     setup() {
       return {
-        args
-      }
+        args,
+      };
     },
     template: `
     <er-collapse v-bind="args">
@@ -34,12 +34,12 @@ export const Default: Story = {
         <div>this is content c</div>
       </er-collapse-item>
     </er-collapse>
-    `
+    `,
   }),
   args: {
     accordion: true,
-    modelValue: ['a']
-  }
-}
+    modelValue: ['a'],
+  },
+};
 
-export default meta
+export default meta;

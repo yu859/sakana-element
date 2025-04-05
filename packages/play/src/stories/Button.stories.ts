@@ -1,7 +1,9 @@
 import type { Meta, StoryObj, ArgTypes } from '@storybook/vue3';
 import { fn, within, userEvent, expect, clearAllMocks } from '@storybook/test';
-import { ErButton, ErButtonGroup } from 'sakana-element';
 import { set } from 'lodash-es';
+
+import { ErButton, ErButtonGroup } from 'sakana-element';
+import 'sakana-element/dist/theme/Button.css';
 
 type Story = StoryObj<typeof ErButton> & { argTypes?: ArgTypes };
 //argTypes用于定义组件的参数类型和控制方式，可以生成参数文档
