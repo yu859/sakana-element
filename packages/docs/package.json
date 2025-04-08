@@ -2,17 +2,18 @@
   "name": "@sakana-element/docs",
   "version": "1.0.0",
   "description": "",
+  "type": "module",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "vitepress dev",
-    "build": "vitepress build",
-    "preview": "vitepress preview"
+    "dev": "vitepress dev ./",
+    "build": "vitepress build ./"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@vitepress-demo-preview/plugin": "^1.4.0",
+    "vitepress-preview-component": "workspace:*",
     "vitepress": "1.0.0-rc.44"
   }
 }

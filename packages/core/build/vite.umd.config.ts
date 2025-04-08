@@ -1,8 +1,9 @@
 //umd可以在多种环境下使用
+//当使用 require 语法时，会自动选择 UMD 格式
 import { defineConfig } from 'vite'; //vite的defineConfig
-import { readFileSync } from 'fs'; //同步读取文件
+import { readFile } from 'fs'; //同步读取文件
 import { resolve } from 'path'; //路径解析
-import { delay } from 'lodash-es'; //延迟函数
+import { defer, delay } from 'lodash-es'; //延迟函数
 import { compression } from 'vite-plugin-compression2'; //压缩插件,压缩成gzip
 
 import shell from 'shelljs'; //导入shelljs，用于删除文件
@@ -16,13 +17,10 @@ const isProd = process.env.NODE_ENV === 'production'; //是否是生产环境
 const isDev = process.env.NODE_ENV === 'development'; //是否是开发环境
 const isTest = process.env.NODE_ENV === 'test'; //是否是测试环境
 function moveStyles() {
-  try {
-    readFileSync('./dist/umd/index.css.gz');
-    shell.cp('./dist/umd/index.css', './dist/index.css');
-  } catch (_) {
-    //接收到错误对象但不使用，约定而已
-    delay(moveStyles, TRY_MOVE_STYLES_DELAY);
-  }
+  readFile('./dist/umd/index.css.gz', (err) => {
+    if (err) return delay(moveStyles, TRY_MOVE_STYLES_DELAY);
+    defer(() => shell.cp('./dist/umd/index.css', './dist/index.css'));
+  });
 }
 
 export default defineConfig({
@@ -53,7 +51,7 @@ export default defineConfig({
     outDir: 'dist/umd', //输出目录
     lib: {
       //库配置
-      entry: resolve(__dirname, './index.ts'), //入口文件
+      entry: resolve(__dirname, '../index.ts'), //入口文件
       name: 'SakanaElement', //库名
       fileName: 'index', //文件名
       formats: ['umd'], //格式

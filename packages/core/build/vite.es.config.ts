@@ -1,10 +1,12 @@
 //es打包需要打包工具
+//当使用 import 语法时，会自动选择 ES 模块格式
 import { defineConfig } from 'vite'; //vite的defineConfig
-import vue from '@vitejs/plugin-vue'; //vue插件，不引入jsx是因为jsx只在测试中使用
 import { resolve } from 'path'; //路径解析
+import { readdir, readdirSync } from 'fs';
+import { filter, map, delay, defer } from 'lodash-es';
+
+import vue from '@vitejs/plugin-vue'; //vue插件，不引入jsx是因为jsx只在测试中使用
 import dts from 'vite-plugin-dts'; //dts插件，当用户安装并使用你的组件库时，TypeScript 能够自动找到这些声明文件，提供代码补全和类型检查功能。
-import { readdirSync } from 'fs';
-import { filter, map, delay } from 'lodash-es';
 import shell from 'shelljs'; //导入shelljs，用于删除文件
 import hooks from './hooksPlugin'; //导入hooksPlugin
 import terser from '@rollup/plugin-terser'; //压缩插件
@@ -25,12 +27,10 @@ function getDirectoriesSync(basePath: string) {
 }
 
 function moveStyles() {
-  try {
-    readdirSync('./dist/es/theme');
-    shell.mv('./dist/es/theme', './dist');
-  } catch (_) {
-    delay(moveStyles, TRY_MOVE_STYLES_DELAY);
-  }
+  readdir('./dist/es/theme', (err) => {
+    if (err) return delay(moveStyles, TRY_MOVE_STYLES_DELAY);
+    defer(() => shell.mv('./dist/es/theme', './dist'));
+  });
 }
 
 export default defineConfig({
@@ -79,7 +79,7 @@ export default defineConfig({
     cssCodeSplit: true, //css代码分割
     lib: {
       //库配置
-      entry: resolve(__dirname, './index.ts'), //入口文件
+      entry: resolve(__dirname, '../index.ts'), //入口文件
       name: 'SakanaElement', //库名
       fileName: 'index', //文件名
       formats: ['es'], //格式

@@ -1,3 +1,4 @@
 packages:
   # 负责管理所有的包
   - 'packages/*'
+  - '_node_modules/*'
