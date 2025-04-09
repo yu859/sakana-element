@@ -17,6 +17,15 @@ importers:
       '@sakana-element/utils':
         specifier: workspace:*
         version: link:packages/utils
+      '@vitest/coverage-v8':
+        specifier: ^1.4.0
+        version: 1.6.1(vitest@1.6.1(@types/node@20.17.28)(jsdom@24.1.3)(sass@1.86.3)(terser@5.39.0))
+      '@vue/test-utils':
+        specifier: ^2.4.5
+        version: 2.4.6
+      jsdom:
+        specifier: ^24.0.0
+        version: 24.1.3
       lodash-es:
         specifier: ^4.17.21
         version: 4.17.21
@@ -116,17 +125,7 @@ importers:
         specifier: ^1.54.8
         version: 1.86.3
 
-  packages/components:
-    devDependencies:
-      '@vitest/coverage-v8':
-        specifier: ^1.4.0
-        version: 1.6.1(vitest@1.6.1(@types/node@20.17.28)(jsdom@24.1.3)(sass@1.86.3)(terser@5.39.0))
-      '@vue/test-utils':
-        specifier: ^2.4.5
-        version: 2.4.6
-      jsdom:
-        specifier: ^24.0.0
-        version: 24.1.3
+  packages/components: {}
 
   packages/core:
     dependencies:

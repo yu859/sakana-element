@@ -3,6 +3,8 @@ import type { AlertType } from './types'; // 类型
 import { mount } from '@vue/test-utils'; // 测试工具，用于挂载组件
 import Alert from './Alert.vue'; // 测试组件
 import Icon from '../Icon/Icon.vue'; // 测试组件
+import { ErAlert } from './index';
+import { withInstall } from '@sakana-element/utils';
 
 describe('Alert.vue', () => {
   //describe创建一个测试组，第一个参数是测试组的名称，第二个参数是测试组的内容
@@ -135,5 +137,26 @@ describe('Alert.vue', () => {
     expect(wrapper.find('.er-alert').attributes().style).toBe('display: none;');
     await wrapper.vm.open();
     expect(wrapper.find('.er-alert').attributes().style).toBe('');
+  });
+});
+
+describe('Alert/index', () => {
+  it('should be exported with withInstall()', () => {
+    expect(ErAlert.install).toBeDefined();
+  });
+  it('component should be exported', () => {
+    expect(ErAlert).toBe(Alert);
+  });
+
+  // 可选
+  it('should enhance Alert component', () => {
+    const enhancedAlert = withInstall(Alert);
+    expect(enhancedAlert).toBe(ErAlert);
+  });
+
+  // 可选
+  it('should apply specific enhance', () => {
+    const enhancedAlert = withInstall(Alert);
+    expect(enhancedAlert).toHaveProperty('install');
   });
 });
