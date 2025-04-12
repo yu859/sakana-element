@@ -8,7 +8,7 @@ import { compression } from 'vite-plugin-compression2'; //压缩插件,压缩成
 
 import shell from 'shelljs'; //导入shelljs，用于删除文件
 import vue from '@vitejs/plugin-vue'; //vue插件，不引入jsx是因为jsx只在测试中使用
-import hooks from './hooksPlugin'; //导入hooksPlugin
+import { hooksPlugin as hooks } from '@sakana-element/vite-plugins'; //导入hooksPlugin
 import terser from '@rollup/plugin-terser'; //压缩插件
 
 const TRY_MOVE_STYLES_DELAY = 800 as const; //常量

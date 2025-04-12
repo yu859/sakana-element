@@ -5,10 +5,17 @@ import { bind, debounce, isNil, type DebouncedFunc } from 'lodash-es';
 import type { TooltipProps, TooltipEmits, TooltipInstance } from './types';
 import { useClickOutside } from '@sakana-element/hooks';
 
+import useEventsToTiggerNode from './useEventsToTiggerNode';
+
+interface _TooltipProps extends TooltipProps {
+  virtualRef?: HTMLElement | void; //虚拟触发节点
+  virtualTriggering?: boolean; //是否虚拟触发
+}
+
 defineOptions({
   name: 'ErTooltip', //加前缀，避免和别的组件冲突，业界惯例
 });
-const props = withDefaults(defineProps<TooltipProps>(), {
+const props = withDefaults(defineProps<_TooltipProps>(), {
   //defineProps不仅可以用来接收父组件传递的数据，还可以用来定义和导入类型
   //withDefaults 设置默认值
   placement: 'bottom',
@@ -27,7 +34,14 @@ const dropdownEvents: Ref<Record<string, EventListener>> = ref({});
 
 const containerNode = ref<HTMLElement>();
 const popperNode = ref<HTMLElement>();
-const triggerNode = ref<HTMLElement>();
+const _triggerNode = ref<HTMLElement>();
+
+const triggerNode = computed(() => {
+  if (props.virtualTriggering) {
+    return (props.virtualRef as HTMLElement) ?? _triggerNode.value;
+  }
+  return _triggerNode.value as HTMLElement;
+});
 
 const popperOptions = computed(() => ({
   placement: props.placement,
@@ -70,7 +84,7 @@ function togglePopper() {
 }
 
 // 设置提示框可见性
-function setVisibel(val: boolean) {
+function setVisible(val: boolean) {
   if (props.disabled) return;
   visible.value = val;
   emits('visible-change', val);
@@ -118,7 +132,7 @@ function resetEvents() {
 const show: TooltipInstance['show'] = openFinal;
 const hide: TooltipInstance['hide'] = function () {
   openDebounce?.cancel();
-  setVisibel(false);
+  setVisible(false);
 };
 
 watch(
@@ -163,8 +177,8 @@ watchEffect(() => {
   if (!props.manual) {
     attachEvents();
   }
-  openDebounce = debounce(bind(setVisibel, null, true), openDelay.value);
-  closeDebounce = debounce(bind(setVisibel, null, false), closeDelay.value);
+  openDebounce = debounce(bind(setVisible, null, true), openDelay.value);
+  closeDebounce = debounce(bind(setVisible, null, false), closeDelay.value);
 });
 
 useClickOutside(containerNode, () => {
@@ -172,6 +186,11 @@ useClickOutside(containerNode, () => {
   if (props.trigger === 'hover' || props.manual) return;
 
   visible.value && closeFinal();
+});
+
+useEventsToTiggerNode(props, triggerNode, events, () => {
+  openDebounce?.cancel();
+  setVisible(false);
 });
 
 onUnmounted(() => {
@@ -187,9 +206,15 @@ defineExpose<TooltipInstance>({
 
 <template>
   <div class="er-tooltip" ref="containerNode" v-on="outerEvents">
-    <div class="er-tooltip__trigger" ref="triggerNode" v-on="events">
+    <div
+      class="er-tooltip__trigger"
+      ref="_triggerNode"
+      v-on="events"
+      v-if="!virtualTriggering"
+    >
       <slot></slot>
     </div>
+    <slot name="default" v-else></slot>
 
     <transition :name="transition" @after-leave="destroyPopperInstance">
       <div
@@ -206,3 +231,7 @@ defineExpose<TooltipInstance>({
     </transition>
   </div>
 </template>
+
+<style scoped>
+@import './style.css';
+</style>
