@@ -8,11 +8,12 @@
     "story": "pnpm --filter @sakana-element/play storybook",
     "docs:dev": "pnpm --filter @sakana-element/docs dev",
     "docs:build": "pnpm --filter @sakana-element/docs build",
-    "test": "run-p test-utils test-comp",
+    "test": "run-s test-utils test-comp",
     "test-comp": "cross-env NODE_ENV=test pnpm --filter @sakana-element/components test",
     "test-utils": "cross-env NODE_ENV=test pnpm --filter @sakana-element/utils test",
     "build": "cross-env NODE_ENV=production pnpm --filter sakana-element build",
-    "build:dev": "cross-env NODE_ENV=development pnpm --filter sakana-element build:watch"
+    "build:dev": "cross-env NODE_ENV=development pnpm --filter sakana-element build:watch",
+    "release": "pnpm --filter sakana-element release"
   },
   "keywords": [],
   "author": "",
