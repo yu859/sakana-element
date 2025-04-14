@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, onUnmounted, ref, watch, watchEffect, type Ref } from 'vue';
 import { createPopper, type Instance } from '@popperjs/core';
-import { bind, debounce, isNil, type DebouncedFunc } from 'lodash-es';
+import { bind, debounce, type DebouncedFunc } from 'lodash-es';
 import type { TooltipProps, TooltipEmits, TooltipInstance } from './types';
 import { useClickOutside } from '@sakana-element/hooks';
 
@@ -114,9 +114,7 @@ function attachEvents() {
 let popperInstance: null | Instance;
 
 function destroyPopperInstance() {
-  if (isNil(popperInstance)) return; // 如果实例不存在则返回,isNil是lodash-es库中的一个函数，用于检查值是否为null或undefined
-
-  popperInstance.destroy();
+  popperInstance?.destroy();
   popperInstance = null;
 }
 
@@ -164,8 +162,7 @@ watch(
 
 watch(
   () => props.trigger, //外部变量要监听，内部变量不需要监听，因为外部变量不是ref，内部变量是ref
-  (val, oldVal) => {
-    if (val === oldVal) return;
+  () => {
     openDebounce?.cancel();
     visible.value = false;
     emits('visible-change', false);
