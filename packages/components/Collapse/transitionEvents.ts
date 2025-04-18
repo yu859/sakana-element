@@ -1,6 +1,5 @@
 const _setHeightZero = (el: HTMLElement) => (el.style.height = '0px');
-const _setHeightScroll = (el: HTMLElement) =>
-  (el.style.height = `${el.scrollHeight}px`);
+const _setHeightScroll = (el: HTMLElement) => (el.style.height = `${el.scrollHeight}px`);
 const _setHeightEmpty = (el: HTMLElement) => (el.style.height = '');
 const _setOverflowHidden = (el: HTMLElement) => (el.style.overflow = 'hidden');
 const _setOverflowEmpty = (el: HTMLElement) => (el.style.overflow = '');

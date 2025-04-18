@@ -25,10 +25,6 @@ export interface ButtonEmits {
   (e: 'click', val: MouseEvent): void;
 }
 
-export interface ButtonInstance {
-  ref: Ref<HTMLButtonElement | void>;
-}
-
 export interface ButtonGroupProps {
   size?: ButtonSize;
   type?: ButtonType;

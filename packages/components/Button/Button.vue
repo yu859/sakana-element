@@ -18,7 +18,7 @@ const props = withDefaults(defineProps<ButtonProps>(), {
 const emits = defineEmits<ButtonEmits>();
 
 const slots = defineSlots();
-const ctx = inject(BUTTON_GROUP_CTX_KEY, void 0);
+const ctx = inject(BUTTON_GROUP_CTX_KEY, void 0); //第一个参数是注入的key，第二个参数是默认值
 const _ref = ref<HTMLButtonElement>();
 const size = computed(() => ctx?.size ?? props?.size ?? '');
 const type = computed(() => ctx?.type ?? props?.type ?? '');

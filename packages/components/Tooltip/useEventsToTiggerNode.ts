@@ -1,7 +1,7 @@
-import { each, isElement } from "lodash-es";
-import { onMounted, onUnmounted, watch } from "vue";
-import type { ComputedRef, Ref, WatchStopHandle } from "vue";
-import type { TooltipProps } from "./types";
+import { each, isElement } from 'lodash-es';
+import { onMounted, onUnmounted, watch } from 'vue';
+import type { ComputedRef, Ref, WatchStopHandle } from 'vue';
+import type { TooltipProps } from './types';
 
 export function useEvenstToTiggerNode(
   props: TooltipProps & { virtualTriggering?: boolean },
@@ -12,7 +12,7 @@ export function useEvenstToTiggerNode(
   let watchEventsStopHandle: WatchStopHandle | void;
   let watchTriggerNodeStopHandle: WatchStopHandle | void;
 
-  const _eventHandleMap = new Map();
+  const _eventHandleMap = new Map(); //Map存储键值对
 
   const _bindEventToVirtualTiggerNode = () => {
     const el = triggerNode.value;
@@ -26,7 +26,7 @@ export function useEvenstToTiggerNode(
     const el = triggerNode.value;
     isElement(el) &&
       each(
-        ["mouseenter", "click", "contextmenu"],
+        ['mouseenter', 'click', 'contextmenu'],
         (key) =>
           _eventHandleMap.has(key) &&
           el?.removeEventListener(key, _eventHandleMap.get(key))
