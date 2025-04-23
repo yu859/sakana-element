@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
 import { addUnit } from '@sakana-element/utils';
+import { useLocale } from '@sakana-element/hooks';
 import type { TooltipInstance } from '../Tooltip';
 import type { PopconfirmProps, PopconfirmEmits } from './types';
 
@@ -15,8 +16,6 @@ defineOptions({
 const props = withDefaults(defineProps<PopconfirmProps>(), {
   title: '',
   confirmButtonType: 'primary',
-  confirmButtonText: 'Yes',
-  cancelButtonText: 'No',
   icon: 'question-circle',
   iconColor: '#f90',
   hideAfter: 200,
@@ -26,6 +25,8 @@ const props = withDefaults(defineProps<PopconfirmProps>(), {
 const emits = defineEmits<PopconfirmEmits>();
 const tooltipRef = ref<TooltipInstance>();
 const style = computed(() => ({ width: addUnit(props.width) }));
+
+const locale = useLocale();
 
 function hidePopper() {
   tooltipRef.value?.hide();
@@ -59,7 +60,7 @@ function cancel(e: MouseEvent) {
           :type="cancelButtonType"
           @click="cancel"
         >
-          {{ cancelButtonText }}
+          {{ cancelButtonText || locale.t('popconfirm.cancelButtonText') }}
         </er-button>
         <er-button
           class="er-popconfirm__confirm"
@@ -67,7 +68,7 @@ function cancel(e: MouseEvent) {
           :type="confirmButtonType"
           @click="confirm"
         >
-          {{ confirmButtonText }}
+          {{ confirmButtonText || locale.t('popconfirm.confirmButtonText') }}
         </er-button>
       </div>
     </template>
