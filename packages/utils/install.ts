@@ -13,3 +13,10 @@ export const withInstall = <T>(component: T) => {
   };
   return component as SFCWithInstall<T>;
 };
+
+export const withInstallFunction = <T>(fn: T, name: string) => {
+  (fn as SFCWithInstall<T>).install = (app: App) => {
+    app.config.globalProperties[name] = fn; //这样注册后，可以在任何组件中通过 this[name] 访问该函数
+  };
+  return fn as SFCWithInstall<T>;
+};

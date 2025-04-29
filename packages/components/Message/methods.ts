@@ -10,15 +10,15 @@ import type {
   MessageType,
 } from './types';
 import { messageTypes } from './types';
-import { isString, findIndex, set, each } from 'lodash-es';
+import { useId, useZIndex } from '@sakana-element/hooks';
+import { isString, findIndex, set, each, get } from 'lodash-es';
 import MessageConstructor from './Message.vue';
-
-let seed = 0;
 
 //ref是对基本和复杂类型不管什么变化都响应，shallowRef是全部变化才响应，reactive是对复杂类型不管什么变化都响应，shallowReactive是只有最外层复杂类型变化才响应
 //ref可以基本和复杂类型响应式，reactive是复杂深响应式，shallowReactive是复杂浅响应式
 //MessageInstance[]是MessageInstance类型的数组，shallowReactive是浅响应式，shallowReactive([])是创建一个浅响应式的空数组
 const instances: MessageInstance[] = shallowReactive([]);
+const { nextZIndex } = useZIndex();
 
 export const messageDefaults = {
   type: 'info',
@@ -40,7 +40,7 @@ const normalizedOptions = (opts: MessageParams): CreateMessageProps => {
 };
 
 const createMessage = (props: CreateMessageProps): MessageInstance => {
-  const id = `message_${seed++}`;
+  const id = useId().value;
   const container = document.createElement('div'); //创建div作为消息的容器
 
   //销毁实例的函数
@@ -56,7 +56,7 @@ const createMessage = (props: CreateMessageProps): MessageInstance => {
   const _props: MessageProps = {
     ...props,
     id,
-    zIndex: 200,
+    zIndex: nextZIndex(),
     onDestory: destory,
   };
   const vnode = h(MessageConstructor, _props); //创建虚拟节点，将_props作为props传递给MessageConstructor
@@ -80,6 +80,13 @@ const createMessage = (props: CreateMessageProps): MessageInstance => {
 
   return instance;
 };
+
+export function getLastBottomOffset(this: MessageProps) {
+  const idx = findIndex(instances, { id: this.id });
+  if (idx <= 0) return 0;
+
+  return get(instances, [idx - 1, 'vm', 'exposed', 'bottomOffset', 'value']);
+}
 
 export const message: MessageFn & Partial<Message> = (options = {}) => {
   const normalized = normalizedOptions(options);
