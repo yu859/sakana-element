@@ -70,6 +70,7 @@ defineExpose<MessageCompInstance>({
 });
 </script>
 
+<!-- 大写更符合vue3的语法 template里面不能写注释-->
 <template>
   <Transition
     :name="transitionName"
