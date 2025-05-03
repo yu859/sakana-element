@@ -14,6 +14,7 @@ const props = withDefaults(defineProps<NotificationProps>(), {
   type: 'info',
   duration: 3000,
   offset: 20,
+  position: 'top-right',
   transitionName: 'fade',
   showClose: true,
 });
@@ -31,8 +32,20 @@ const { topOffset, bottomOffset } = useOffset({
 
 const iconName = computed(() => typeIconMap.get(props.type) ?? 'circle-info');
 
+//如果position以right结尾，则水平方向为right，否则为left
+const horizontalClass = computed(() =>
+  //endsWith 判断字符串是否以指定字符串结尾
+  props.position.endsWith('right') ? 'right' : 'left'
+);
+
+//如果position以top开头，则垂直方向为top，否则为bottom
+const verticalProperty = computed(() =>
+  //startsWith 判断字符串是否以指定字符串开头
+  props.position.startsWith('top') ? 'top' : 'bottom'
+);
+
 const customStyle = computed(() => ({
-  top: addUnit(topOffset.value),
+  [verticalProperty.value]: addUnit(topOffset.value),
   zIndex: props.zIndex,
 }));
 
@@ -73,6 +86,7 @@ defineExpose<NotificationCompInstance>({
       class="er-notification"
       :class="{
         [`er-notification--${type}`]: type,
+        [horizontalClass]: true,
         'show-close': showClose,
       }"
       :style="customStyle"
