@@ -14,6 +14,7 @@ import { isString, findIndex, set, each, get } from 'lodash-es';
 import NotificationConstructor from './Notification.vue';
 
 // instances是NotificationInstance的数组类型,shallowReactive是浅响应式,shallowReactive会监听数组的变化,但是不会监听数组中的对象的变化
+// ref是响应式,任何变化都响应，shallowRef是浅响应式整体变化才响应
 // const instances: NotificationInstance[] = shallowReactive([]);
 //instancesMap是NotificationInstance的数组类型里面的值只能是position的值
 const instancesMap: Map<NotificationProps['position'], NotificationInstance[]> =

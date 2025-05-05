@@ -1,26 +1,13 @@
-<script setup lang="ts">
-import { h } from 'vue';
-import { ErNotification } from 'sakana-element';
+<script lang="ts" setup>
+import { reactive } from 'vue';
 
-function openNotify1() {
-  ErNotification({
-    title: 'Title',
-    message: h('i', { style: 'color:teal' }, 'This is a remider'),
-    position: 'bottom-right',
-  });
-}
-
-function openNotify2() {
-  ErNotification({
-    title: 'Prompt',
-    message: 'This is a message that does not auto close',
-    duration: 0,
-    position: 'top-left',
-  });
-}
+const form = reactive({
+  name: '',
+  desc: '',
+});
 </script>
 
 <template>
-  <er-button @click="openNotify1" plain>Closes automatically</er-button>
-  <er-button @click="openNotify2" plain>Won't closes automatically</er-button>
+  <er-input v-model="form.name" show-password type="password" />
+  <er-input v-model="form.desc" type="textarea" />
 </template>
