@@ -1,19 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
-import { nextTick } from 'vue';
 import type { MessageBoxType } from './types';
 import MessageBox from './methods';
-
-//返回一个promise，等待下一帧
-export const rAF = async () => {
-  return new Promise((res) => {
-    requestAnimationFrame(() => {
-      requestAnimationFrame(async () => {
-        res(null);
-        await nextTick();
-      });
-    });
-  });
-};
+import { rAF } from '@sakana-element/utils';
 
 describe('MessageBox Component', () => {
   it('renders correctly', async () => {

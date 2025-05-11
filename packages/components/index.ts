@@ -10,3 +10,4 @@ export * from './Message';
 export * from './Notification';
 export * from './Input';
 export * from './MessageBox';
+export * from './Loading';
