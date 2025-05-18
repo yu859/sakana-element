@@ -18,6 +18,8 @@ import {
   watch,
   nextTick,
   type VNode,
+  h,
+  onMounted,
 } from 'vue';
 import {
   useId,
@@ -25,14 +27,34 @@ import {
   useClickOutside,
 } from '@sakana-element/hooks';
 import { POPPER_OPTIONS, SELECT_CTX_KEY } from './constants';
-import { each, eq, filter, find, get, size, noop, isFunction } from 'lodash-es';
+import {
+  each,
+  eq,
+  filter,
+  find,
+  get,
+  size,
+  noop,
+  isFunction,
+  map,
+  assign,
+  isNil,
+  isBoolean,
+  debounce,
+  includes,
+} from 'lodash-es';
+
+import useKeyMap from './useKeyMap';
 
 import ErOption from './Option.vue';
 import ErTooltip from '../Tooltip/Tooltip.vue';
 import ErInput from '../Input/Input.vue';
 import ErIcon from '../Icon/Icon.vue';
+import { debugWarn, RenderVnode } from '@sakana-element/utils';
 
-defineOptions({ name: 'ErSelect' });
+const COMPONENT_NAME = 'ErSelect';
+
+defineOptions({ name: COMPONENT_NAME });
 
 const props = withDefaults(defineProps<SelectProps>(), {
   options: () => [], // 默认值为空数组
@@ -43,6 +65,8 @@ const slots = defineSlots(); //表示插槽，可以获取到这个组件的插�
 const selectRef = ref<HTMLElement>();
 const tooltipRef = ref<TooltipInstance>();
 const inputRef = ref<InputInstance>();
+const filteredChilds = ref<Map<VNode, SelectOptionProps>>(new Map());
+const filteredOptions = ref(props.options ?? []);
 
 const isDropdownVisible = ref(false);
 
@@ -70,14 +94,57 @@ const showClear = computed(
 const highlightedLine = computed(() => {
   let result: SelectOptionProps | void;
   if (hasChildren.value) {
-    const node = children.value[selectStates.highlightedIndex];
-    result = node?.props?.value;
+    const node = [...filteredChilds.value][selectStates.highlightedIndex]?.[0];
+    result = filteredChilds.value.get(node);
   } else {
-    result = props.options[selectStates.highlightedIndex];
+    result = filteredOptions.value[selectStates.highlightedIndex];
   }
 
   return result;
 });
+
+const childrenOptions = computed(() => {
+  if (!hasChildren.value) return [];
+
+  return map(children.value, (item) => ({
+    vNode: h(item),
+    props: assign(item.props, {
+      disabled:
+        item.props?.disabled === true ||
+        (!isNil(item.props?.disabled) && !isBoolean(item.props?.disabled)),
+    }),
+  }));
+});
+
+const isNoData = computed(() => {
+  if (!props.filterable) return false;
+  if (!hasData.value) return true;
+
+  return false;
+});
+
+//判断有没有数据
+const hasData = computed(
+  () =>
+    (hasChildren.value && filteredChilds.value.size > 0) ||
+    (!hasChildren.value && size(filteredOptions.value) > 0)
+);
+
+//option的最大长度
+const lastIndex = computed(() =>
+  hasChildren.value
+    ? filteredChilds.value.size - 1
+    : size(filteredOptions.value) - 1
+);
+
+const filterPlaceholder = computed(() =>
+  props.filterable && selectStates.selectedOption && isDropdownVisible.value
+    ? selectStates.selectedOption.label
+    : props.placeholder
+);
+const timeout = computed(() => (props.remote ? 300 : 100));
+
+const handleFilterDebounce = debounce(handleFilter, timeout.value);
 
 const inputId = useId().value;
 const {
@@ -87,7 +154,18 @@ const {
   handleFocus,
 } = useFocusController(inputRef);
 
+const keyMap = useKeyMap({
+  isDropdownVisible,
+  controlVisible,
+  selectStates,
+  highlightedLine,
+  handleSelect,
+  hasData,
+  lastIndex,
+});
+
 useClickOutside(selectRef, (e) => handleClickOutside(e));
+
 const focus: SelectInstance['focus'] = function () {
   inputRef.value?.focus();
 };
@@ -106,10 +184,21 @@ function handleClickOutside(e?: Event) {
 function controlVisible(visible: boolean) {
   if (!tooltipRef.value) return;
   get(tooltipRef, ['value', visible ? 'show' : 'hide'])?.();
+  props.filterable && controlInputVal(visible);
   isDropdownVisible.value = visible;
   emits('visible-change', visible);
 
   selectStates.highlightedIndex = -1;
+}
+
+function controlInputVal(visible: boolean) {
+  if (!props.filterable) return;
+  if (visible) {
+    if (selectStates.selectedOption) selectStates.inputValue = '';
+    handleFilterDebounce();
+    return;
+  }
+  selectStates.inputValue = selectStates.selectedOption?.label || '';
 }
 
 function toggleVisible() {
@@ -141,6 +230,88 @@ function handleSelect(opt: SelectOptionProps) {
   inputRef.value?.focus();
 }
 
+function setFilteredChilds(opts: typeof childrenOptions.value) {
+  filteredChilds.value.clear();
+  each(opts, (item) => {
+    filteredChilds.value.set(item.vNode, item.props as SelectOptionProps);
+  });
+}
+
+function handleFilter() {
+  const searcKey = selectStates.inputValue;
+  selectStates.highlightedIndex = -1;
+
+  if (hasChildren.value) {
+    genFilterChilds(searcKey);
+    return;
+  }
+  genFilterOptions(searcKey);
+}
+
+function handleKeyDown(e: KeyboardEvent) {
+  keyMap.has(e.key) && keyMap.get(e.key)?.(e);
+}
+
+async function genFilterChilds(search: string) {
+  if (!props.filterable) return;
+
+  if (props.remote && props.remoteMethod && isFunction(props.remoteMethod)) {
+    await callRemoteMethod(props.remoteMethod, search);
+    setFilteredChilds(childrenOptions.value);
+    return;
+  }
+
+  if (props.filterMethod && isFunction(props.filterMethod)) {
+    const opts = map(props.filterMethod(search), 'value');
+    setFilteredChilds(
+      filter(childrenOptions.value, (item) =>
+        includes(opts, get(item, ['props', 'value']))
+      )
+    );
+    return;
+  }
+
+  setFilteredChilds(
+    filter(childrenOptions.value, (item) =>
+      includes(get(item, ['props', 'label']), search)
+    )
+  );
+}
+
+async function genFilterOptions(search: string) {
+  if (!props.filterable) return;
+
+  if (props.remote && props.remoteMethod && isFunction(props.remoteMethod)) {
+    filteredOptions.value = await callRemoteMethod(props.remoteMethod, search);
+    return;
+  }
+
+  if (props.filterMethod && isFunction(props.filterMethod)) {
+    filteredOptions.value = props.filterMethod(search);
+    return;
+  }
+  filteredOptions.value = filter(props.options, (opt) =>
+    includes(opt.label, search)
+  );
+}
+
+async function callRemoteMethod(method: Function, search: string) {
+  if (!method || !isFunction(method)) return;
+
+  selectStates.loading = true;
+  let result;
+  try {
+    result = await method(search);
+  } catch (error) {
+    debugWarn(error as Error);
+    debugWarn(COMPONENT_NAME, 'callRemoteMethod error');
+    result = [];
+    return Promise.reject(error);
+  }
+
+  return result;
+}
+
 // 渲染label
 function renderLabel(opt: SelectOptionProps): VNode | string {
   if (isFunction(props.renderLabel)) {
@@ -157,12 +328,29 @@ function setSelected() {
 }
 
 watch(
+  () => props.options,
+  (newVal) => {
+    filteredOptions.value = newVal ?? [];
+  }
+);
+
+watch(
+  () => childrenOptions.value,
+  (newVal) => setFilteredChilds(newVal),
+  { immediate: true }
+);
+
+watch(
   () => props.modelValue,
   () => {
     // 表单校验 逻辑 change
     setSelected();
   }
 );
+
+onMounted(() => {
+  setSelected();
+});
 
 provide<SelectContext>(SELECT_CTX_KEY, {
   handleSelect,
@@ -202,10 +390,12 @@ defineExpose<SelectInstance>({
             v-model="selectStates.inputValue"
             :id="inputId"
             :disabled="isDisabled"
-            :placeholder="placeholder"
+            :placeholder="filterable ? filterPlaceholder : placeholder"
             :readonly="!filterable || !isDropdownVisible"
             @focus="handleFocus"
             @blur="handleBlur"
+            @input="handleFilterDebounce"
+            @keydown="handleKeyDown"
           >
             <template #suffix>
               <er-icon
@@ -226,16 +416,27 @@ defineExpose<SelectInstance>({
         </div>
       </template>
       <template #content>
+        <div class="er-select__loading" v-if="selectStates.loading">
+          <er-icon icon="spinner" spin />
+        </div>
+        <div class="er-select__nodata" v-else-if="filterable && isNoData">
+          No data
+        </div>
         <ul class="er-select__menu">
           <template v-if="!hasChildren">
             <er-option
-              v-for="item in options"
+              v-for="item in filteredOptions"
               :key="item.value"
               v-bind="item"
             />
           </template>
           <template v-else>
-            <slot name="default"></slot>
+            <template
+              v-for="[vNode, _props] in filteredChilds"
+              :key="_props.value"
+            >
+              <render-vnode :vNode="vNode" />
+            </template>
           </template>
         </ul>
       </template>
