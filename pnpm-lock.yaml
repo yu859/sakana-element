@@ -52,7 +52,7 @@ importers:
         specifier: ^3.0.6
         version: 3.0.8(@fortawesome/fontawesome-svg-core@6.7.2)(vue@3.5.13(typescript@5.8.2))
       '@lerna-lite/cli':
-        specifier: ^3.8.0
+        specifier: ^3.12.3
         version: 3.12.3(@lerna-lite/publish@3.12.3(@types/node@20.17.28)(typescript@5.8.2))(@lerna-lite/version@3.12.3(@lerna-lite/publish@3.12.3(@types/node@20.17.28)(typescript@5.8.2))(@types/node@20.17.28)(typescript@5.8.2))(@types/node@20.17.28)(typescript@5.8.2)
       '@lerna-lite/publish':
         specifier: ^3.8.0
@@ -10424,7 +10424,7 @@ snapshots:
       '@types/normalize-package-data': 2.4.4
       normalize-package-data: 6.0.2
       parse-json: 8.3.0
-      type-fest: 4.38.0
+      type-fest: 4.41.0
       unicorn-magic: 0.1.0
 
   readdirp@4.1.2: {}
@@ -11666,7 +11666,7 @@ snapshots:
       deepmerge-ts: 7.1.5
       read-pkg: 9.0.1
       sort-keys: 5.1.0
-      type-fest: 4.38.0
+      type-fest: 4.41.0
       write-json-file: 6.0.0
 
   ws@8.18.1: {}
